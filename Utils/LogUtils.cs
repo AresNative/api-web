@@ -5,37 +5,40 @@ using Microsoft.Data.SqlClient;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Microsoft.Extensions.Logging; // Para el manejo de logs
 
 public class LogUtils
 {
     private readonly IConfiguration _configuration;
+    private readonly ILogger<LogUtils> _logger;
+    DateTime now = DateTime.Now;
 
-    // Constructor para inyectar IConfiguration
-    public LogUtils(IConfiguration configuration)
+    // Constructor para inyectar IConfiguration y ILogger
+    public LogUtils(IConfiguration configuration, ILogger<LogUtils> logger)
     {
         _configuration = configuration;
+        _logger = logger;
     }
 
     public async Task<bool> IsValidUser(LoginModel login)
     {
-        // Lógica para validar si el usuario y contraseña son correctos
-        // Puedes hacer la consulta a la base de datos para validar el usuario
         string query = "SELECT COUNT(1) FROM Website_users WHERE email = @Email AND password = @Password";
         try
         {
             await using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
             await connection.OpenAsync();
             await using var command = new SqlCommand(query, connection);
+
+            // Asegúrate de usar hashes para las contraseñas en un entorno real
             command.Parameters.AddWithValue("@Email", login.Email);
-            command.Parameters.AddWithValue("@Password", login.Password); // Asegúrate de usar hashes en un entorno real
+            command.Parameters.AddWithValue("@Password", login.Password); // Hash recomendado
 
             var result = (int)await command.ExecuteScalarAsync();
             return result > 0;
         }
         catch (Exception ex)
         {
-            // Manejar la excepción
-            Console.WriteLine(ex);
+            _logger.LogError(ex, "Error al validar el usuario.");
             return false;
         }
     }
@@ -48,21 +51,21 @@ public class LogUtils
             await using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
             await connection.OpenAsync();
             await using var command = new SqlCommand(query, connection);
-            command.Parameters.AddWithValue("@IdUser", email);
+            command.Parameters.AddWithValue("@Email", email);
 
             var result = await command.ExecuteScalarAsync();
-            return (int)result;
+            return result != null ? (int)result : 0; // Verifica si el resultado es null
         }
         catch (Exception ex)
         {
-            // Manejar la excepción
-            Console.WriteLine(ex);
+            _logger.LogError(ex, "Error al obtener el ID del usuario.");
             throw new Exception("Error al obtener el ID del usuario.");
         }
     }
+
     public async Task InsertUserHistory(int userId, string movement)
     {
-        string query = "INSERT INTO Website_user_history (id_user, mov) VALUES (@IdUser, @Movement)";
+        string query = "INSERT INTO Website_user_history (id_user, mov, date) VALUES (@IdUser, @Movement, @Timestamp)";
         try
         {
             await using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
@@ -70,13 +73,34 @@ public class LogUtils
             await using var command = new SqlCommand(query, connection);
             command.Parameters.AddWithValue("@IdUser", userId);
             command.Parameters.AddWithValue("@Movement", movement);
+            command.Parameters.AddWithValue("@Timestamp", now);
 
             await command.ExecuteNonQueryAsync();
         }
         catch (Exception ex)
         {
-            // Manejar la excepción
-            Console.WriteLine(ex);
+            _logger.LogError(ex, "Error al insertar el historial del usuario.");
+            throw new Exception("Error al insertar el historial del usuario.");
+        }
+    }
+
+    public async Task InsertUserSession(int userId, string token, int active)
+    {
+        string query = "INSERT INTO Website_sessions (id_user, token, active) VALUES (@IdUser, @Token, @Active)";
+        try
+        {
+            await using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            await connection.OpenAsync();
+            await using var command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@IdUser", userId);
+            command.Parameters.AddWithValue("@Token", token);
+            command.Parameters.AddWithValue("@Active", active);
+
+            await command.ExecuteNonQueryAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al insertar el historial del usuario.");
             throw new Exception("Error al insertar el historial del usuario.");
         }
     }
@@ -85,10 +109,10 @@ public class LogUtils
     {
         var claims = new[]
         {
-                new Claim(JwtRegisteredClaimNames.Sub, login.Email),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(ClaimTypes.Name, login.Email)
-            };
+        new Claim(JwtRegisteredClaimNames.Sub, login.Email),
+        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+        new Claim(ClaimTypes.Name, login.Email)
+    };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -103,4 +127,5 @@ public class LogUtils
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
 }

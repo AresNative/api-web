@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace MyApiProject.Controllers
 {
@@ -9,6 +11,7 @@ namespace MyApiProject.Controllers
     {
         public UsuariosController_Delete(IConfiguration configuration) : base(configuration) { }
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarUsuario(int id)
         {

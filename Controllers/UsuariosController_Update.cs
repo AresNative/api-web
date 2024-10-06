@@ -14,8 +14,8 @@ namespace MyApiProject.Controllers
         public async Task<IActionResult> ActualizarUsuario(int id, [FromBody] Usuario usuarioActualizado)
         {
             string query = @"UPDATE Website_users 
-                             SET Nombre = @Nombre, Email = @Email 
-                             WHERE Id = @Id";
+                             SET name = @Nombre, email = @Email 
+                             WHERE id = @Id";
 
             try
             {

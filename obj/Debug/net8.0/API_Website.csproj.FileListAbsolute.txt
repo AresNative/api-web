@@ -142,3 +142,4 @@ C:\Users\sistemas02\Desktop\code\API_Website\bin\Debug\net8.0\runtimes\win\lib\n
 C:\Users\sistemas02\Desktop\code\API_Website\obj\Debug\net8.0\API_Website.csproj.AssemblyReference.cache
 C:\Users\sistemas02\Desktop\code\API_Website\obj\Debug\net8.0\API_Website.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\sistemas02\Desktop\code\API_Website\obj\Debug\net8.0\API_Webs.A7E3F2BF.Up2Date
+C:\Users\sistemas02\Desktop\code\API_Website\obj\Debug\net8.0\API_Website.sourcelink.json

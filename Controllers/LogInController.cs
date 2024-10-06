@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyApiProject.Models;
+
 namespace MyApiProject.Controllers
 {
     [Route("api/v1/users/")]
@@ -7,11 +8,9 @@ namespace MyApiProject.Controllers
     public class AuthController : ControllerBase
     {
         private readonly LogUtils _logUtils;
-        private readonly IConfiguration _configuration;
 
-        public AuthController(IConfiguration configuration, LogUtils logUtils)
+        public AuthController(LogUtils logUtils)
         {
-            _configuration = configuration;
             _logUtils = logUtils;
         }
 
@@ -22,7 +21,10 @@ namespace MyApiProject.Controllers
             if (await _logUtils.IsValidUser(login))
             {
                 var token = _logUtils.GenerateJwtToken(login);
-                return Ok(new { Token = token });
+                var userId = await _logUtils.GetUserId(login.Email);
+                await _logUtils.InsertUserSession(userId, token, '1');
+                await _logUtils.InsertUserHistory(userId, "LogIn");
+                return Ok(new { Token = token, UserId = userId });
             }
             else
             {

@@ -5,6 +5,7 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddScoped<LogUtils>();
 // Leer los orígenes permitidos desde appsettings.json
 var allowedCorsOrigins = builder.Configuration.GetSection("AllowedCorsOrigins").Get<string[]>();
 
@@ -43,16 +44,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+
+// Crear instancia de Startup y pasarle la configuración
+var startup = new Startup(builder.Configuration);
+
+// Llamar a ConfigureServices del Startup
+startup.ConfigureServices(builder.Services);
+
 var app = builder.Build();
 
-// Configurar el pipeline HTTP
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    c.RoutePrefix = string.Empty; // Acceso a Swagger en la raíz
+});
 
 app.UseCors("AllowSpecificOrigins");
 
