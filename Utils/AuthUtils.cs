@@ -1,4 +1,3 @@
-// LogUtils.cs
 using Microsoft.IdentityModel.Tokens;
 using MyApiProject.Models;
 using Microsoft.Data.SqlClient;
@@ -7,14 +6,14 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.Extensions.Logging; // Para el manejo de logs
 
-public class LogUtils
+public class AuthUtils
 {
     private readonly IConfiguration _configuration;
-    private readonly ILogger<LogUtils> _logger;
+    private readonly ILogger<AuthUtils> _logger;
     DateTime now = DateTime.Now;
 
     // Constructor para inyectar IConfiguration y ILogger
-    public LogUtils(IConfiguration configuration, ILogger<LogUtils> logger)
+    public AuthUtils(IConfiguration configuration, ILogger<AuthUtils> logger)
     {
         _configuration = configuration;
         _logger = logger;
@@ -127,6 +126,63 @@ public class LogUtils
             throw new Exception("Error al insertar el historial del usuario.");
         }
     }
+    public int GetUserIdFromToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var jwtToken = tokenHandler.ReadJwtToken(token);
+
+        var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
+        return int.Parse(userIdClaim?.Value);
+    }
+
+    public async Task Logout(int userId, string token)
+    {
+        string query = "UPDATE Website_sessions SET active = 0 WHERE id_user = @IdUser AND token = @Token";
+        try
+        {
+            await using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            await connection.OpenAsync();
+            await using var command = new SqlCommand(query, connection);
+            command.Parameters.AddWithValue("@IdUser", userId);
+            command.Parameters.AddWithValue("@Token", token);
+
+            await command.ExecuteNonQueryAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al hacer logout.");
+            throw new Exception("Error al hacer logout.");
+        }
+    }
+    // Método para invalidar todas las sesiones activas de un usuario (útil para cerrar sesión en todos los dispositivos)
+    public async Task<bool> InvalidateUserSessions(int userId)
+    {
+        string query = "UPDATE Website_sessions SET active = 0 WHERE id_user = @IdUser AND active = 1";
+
+        try
+        {
+            await using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            await connection.OpenAsync();
+            await using var command = new SqlCommand(query, connection);
+
+            command.Parameters.AddWithValue("@IdUser", userId);
+
+            var rowsAffected = await command.ExecuteNonQueryAsync();
+
+            if (rowsAffected > 0)
+            {
+                // Registro del movimiento en el historial
+                await InsertUserHistory(userId, "Todas las sesiones del usuario fueron cerradas");
+                return true;
+            }
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al invalidar las sesiones del usuario.");
+            return false;
+        }
+    }
 
     public string GenerateJwtToken(LoginModel login)
     {
@@ -144,7 +200,7 @@ public class LogUtils
             issuer: _configuration["JwtSettings:Issuer"],
             audience: _configuration["JwtSettings:Audience"],
             claims: claims,
-            expires: DateTime.Now.AddMinutes(30),
+            expires: DateTime.Now.AddHours(24),
             signingCredentials: creds
         );
 

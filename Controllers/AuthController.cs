@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MyApiProject.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace MyApiProject.Controllers
 {
@@ -7,23 +8,23 @@ namespace MyApiProject.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
-        private readonly LogUtils _logUtils;
+        private readonly AuthUtils _authUtils;
 
-        public AuthController(LogUtils logUtils)
+        public AuthController(AuthUtils authUtils)
         {
-            _logUtils = logUtils;
+            _authUtils = authUtils;
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel login)
         {
             // Aquí validarías las credenciales contra la base de datos
-            if (await _logUtils.IsValidUser(login))
+            if (await _authUtils.IsValidUser(login))
             {
-                var token = _logUtils.GenerateJwtToken(login);
-                var userId = await _logUtils.GetUserId(login.Email);
-                await _logUtils.InsertUserSession(userId, token, '1');
-                await _logUtils.InsertUserHistory(userId, "LogIn");
+                var token = _authUtils.GenerateJwtToken(login);
+                var userId = await _authUtils.GetUserId(login.Email);
+                await _authUtils.InsertUserSession(userId, token, '1');
+                await _authUtils.InsertUserHistory(userId, "LogIn");
                 return Ok(new { Token = token, UserId = userId });
             }
             else
@@ -32,22 +33,17 @@ namespace MyApiProject.Controllers
             }
         }
 
+        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> logOut(int id)
         {
             // Aquí validarías las credenciales contra la base de datos
+            var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            var userId = _authUtils.GetUserIdFromToken(token);
 
-            var userId = await _logUtils.IsValidUserId(id);
-            if (userId != null)
-            {
-                //await _logUtils.InsertUserSession(userId, token, '1');
-                await _logUtils.InsertUserHistory(userId, "LogOut");
-                return Ok(new { UserId = userId });
-            }
-            else
-            {
-                return Unauthorized(new { Message = "Credenciales inválidas" });
-            }
+            await _authUtils.InsertUserHistory(userId, "LogOut");
+            await _authUtils.Logout(userId, token);
+            return Ok(new { Message = "Logout exitoso." });
         }
     }
 }

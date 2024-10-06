@@ -55,7 +55,7 @@ public class Startup
         // Registrar los controladores, servicios y otros componentes
         services.AddEndpointsApiExplorer();
 
-        services.AddScoped<LogUtils>(); // Ejemplo de un servicio registrado
+        services.AddScoped<AuthUtils>(); // Ejemplo de un servicio registrado
         services.AddSwaggerGen(c =>
     {
         c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
