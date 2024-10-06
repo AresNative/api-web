@@ -5,21 +5,17 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace MyApiProject.Controllers
 {
-    [Route("api/v1/users/delete_user")]
-    [ApiController]
-    public class UsuariosController_Delete : BaseController
+    public partial class UsuariosController : BaseController
     {
-        public UsuariosController_Delete(IConfiguration configuration) : base(configuration) { }
-
         [Authorize]
-        [HttpDelete("{id}")]
+        [HttpDelete("api/v1/users/delete/{id}")]
         public async Task<IActionResult> EliminarUsuario(int id)
         {
             string query = @"DELETE FROM Website_users WHERE Id = @Id";
 
             try
             {
-                await using var connection = await OpenConnection();
+                await using var connection = await OpenConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
 
                 command.Parameters.AddWithValue("@Id", id);

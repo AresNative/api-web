@@ -1,16 +1,14 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using MyApiProject.Models;
 
 namespace MyApiProject.Controllers
 {
-    [Route("api/v1/users/update")]
-    [ApiController]
-    public class UsuariosController_Update : BaseController
+    public partial class UsuariosController : BaseController
     {
-        public UsuariosController_Update(IConfiguration configuration) : base(configuration) { }
-
-        [HttpPut("{id}")]
+        [Authorize]
+        [HttpPut("api/v1/users/update/{id}")]
         public async Task<IActionResult> ActualizarUsuario(int id, [FromBody] Usuario usuarioActualizado)
         {
             string query = @"UPDATE Website_users 
@@ -19,7 +17,7 @@ namespace MyApiProject.Controllers
 
             try
             {
-                await using var connection = await OpenConnection();
+                await using var connection = await OpenConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
 
                 command.Parameters.AddWithValue("@Nombre", usuarioActualizado.name);
@@ -39,5 +37,4 @@ namespace MyApiProject.Controllers
             }
         }
     }
-
 }

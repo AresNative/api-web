@@ -43,6 +43,29 @@ public class LogUtils
         }
     }
 
+    public async Task<int> IsValidUserId(int id)
+    {
+        string query = "SELECT id FROM Website_users WHERE id = @ID";
+        try
+        {
+            await using var connection = new SqlConnection(_configuration.GetConnectionString("DefaultConnection"));
+            await connection.OpenAsync();
+            await using var command = new SqlCommand(query, connection);
+
+            // Asegúrate de usar hashes para las contraseñas en un entorno real
+            command.Parameters.AddWithValue("@ID", id);
+
+            //var result = await command.ExecuteScalarAsync();
+            var result = (int)await command.ExecuteScalarAsync();
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error al validar el usuario.");
+            return -1;
+        }
+    }
+
     public async Task<int> GetUserId(string email)
     {
         string query = "SELECT id FROM Website_users WHERE email = @Email";

@@ -31,5 +31,23 @@ namespace MyApiProject.Controllers
                 return Unauthorized(new { Message = "Credenciales inválidas" });
             }
         }
+
+        [HttpPost("logout")]
+        public async Task<IActionResult> logOut(int id)
+        {
+            // Aquí validarías las credenciales contra la base de datos
+
+            var userId = await _logUtils.IsValidUserId(id);
+            if (userId != null)
+            {
+                //await _logUtils.InsertUserSession(userId, token, '1');
+                await _logUtils.InsertUserHistory(userId, "LogOut");
+                return Ok(new { UserId = userId });
+            }
+            else
+            {
+                return Unauthorized(new { Message = "Credenciales inválidas" });
+            }
+        }
     }
 }

@@ -4,13 +4,11 @@ using MyApiProject.Models;
 
 namespace MyApiProject.Controllers
 {
-    [Route("api/v1/users/register")]
-    [ApiController]
-    public class UsuariosController_Create : BaseController
+    public partial class UsuariosController : BaseController
     {
-        public UsuariosController_Create(IConfiguration configuration) : base(configuration) { }
+        public UsuariosController(IConfiguration configuration) : base(configuration) { }
 
-        [HttpPost]
+        [HttpPost("api/v1/users/register")]
         public async Task<IActionResult> RegistrarUsuario([FromBody] Usuario nuevoUsuario)
         {
             // Ajustamos la consulta SQL para incluir el campo password
@@ -19,7 +17,7 @@ namespace MyApiProject.Controllers
 
             try
             {
-                await using var connection = await OpenConnection();
+                await using var connection = await OpenConnectionAsync();
                 await using var command = new SqlCommand(query, connection);
 
                 // Agregamos los parámetros incluyendo el password
