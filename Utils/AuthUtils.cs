@@ -126,14 +126,21 @@ public class AuthUtils
             throw new Exception("Error al insertar el historial del usuario.");
         }
     }
-    public int GetUserIdFromToken(string token)
+    public string GetEmailFromToken(string token)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
+
+        // Intentamos leer el token JWT
         var jwtToken = tokenHandler.ReadJwtToken(token);
 
-        var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
-        return int.Parse(userIdClaim?.Value);
+        // Buscamos el claim que contiene el correo (sub o name claim del esquema SOAP)
+        var emailClaim = jwtToken.Claims.FirstOrDefault(c =>
+            c.Type == "sub" || c.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name");
+
+        // Verificamos si se encontró el claim y retornamos su valor
+        return emailClaim?.Value ?? throw new Exception("El token no contiene un claim de correo.");
     }
+
 
     public async Task Logout(int userId, string token)
     {
@@ -182,29 +189,6 @@ public class AuthUtils
             _logger.LogError(ex, "Error al invalidar las sesiones del usuario.");
             return false;
         }
-    }
-
-    public string GenerateJwtToken(LoginModel login)
-    {
-        var claims = new[]
-        {
-        new Claim(JwtRegisteredClaimNames.Sub, login.Email),
-        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-        new Claim(ClaimTypes.Name, login.Email)
-    };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]));
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var token = new JwtSecurityToken(
-            issuer: _configuration["JwtSettings:Issuer"],
-            audience: _configuration["JwtSettings:Audience"],
-            claims: claims,
-            expires: DateTime.Now.AddHours(24),
-            signingCredentials: creds
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
 }

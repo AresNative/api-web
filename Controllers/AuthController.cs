@@ -8,10 +8,12 @@ namespace MyApiProject.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly TokensUtils _tokensUtils;
         private readonly AuthUtils _authUtils;
 
-        public AuthController(AuthUtils authUtils)
+        public AuthController(TokensUtils tokensUtils, AuthUtils authUtils)
         {
+            _tokensUtils = tokensUtils;
             _authUtils = authUtils;
         }
 
@@ -21,7 +23,7 @@ namespace MyApiProject.Controllers
             // Aquí validarías las credenciales contra la base de datos
             if (await _authUtils.IsValidUser(login))
             {
-                var token = _authUtils.GenerateJwtToken(login);
+                var token = _tokensUtils.GenerateJwtToken(login);
                 var userId = await _authUtils.GetUserId(login.Email);
                 await _authUtils.InsertUserSession(userId, token, '1');
                 await _authUtils.InsertUserHistory(userId, "LogIn");
@@ -37,13 +39,15 @@ namespace MyApiProject.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> logOut(int id)
         {
-            // Aquí validarías las credenciales contra la base de datos
             var token = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            var userId = _authUtils.GetUserIdFromToken(token);
+            var email = _authUtils.GetEmailFromToken(token);
 
-            await _authUtils.InsertUserHistory(userId, "LogOut");
-            await _authUtils.Logout(userId, token);
-            return Ok(new { Message = "Logout exitoso." });
+            // Marcar el logout en el historial de usuario
+            await _authUtils.InsertUserHistory(id, "LogOut");
+            await _authUtils.Logout(id, token);
+
+            return Ok(new { Message = "Logout exitoso.", Email = email });
         }
+
     }
 }
