@@ -12,10 +12,10 @@
           "Microsoft.AspNetCore.Cors": "2.2.0",
           "Microsoft.AspNetCore.Mvc.NewtonsoftJson": "8.0.8",
           "Microsoft.Data.SqlClient": "5.2.2",
-          "Microsoft.DotNet.ILCompiler": "8.0.8",
+          "Microsoft.DotNet.ILCompiler": "8.0.10",
           "Microsoft.EntityFrameworkCore.SqlServer": "8.0.8",
           "Microsoft.EntityFrameworkCore.Tools": "8.0.8",
-          "Microsoft.NET.ILLink.Tasks": "8.0.8",
+          "Microsoft.NET.ILLink.Tasks": "8.0.10",
           "Swashbuckle.AspNetCore": "6.8.1",
           "System.IdentityModel.Tokens.Jwt": "8.1.0"
         },
@@ -456,7 +456,7 @@
           }
         }
       },
-      "Microsoft.DotNet.ILCompiler/8.0.8": {},
+      "Microsoft.DotNet.ILCompiler/8.0.10": {},
       "Microsoft.EntityFrameworkCore/8.0.8": {
         "dependencies": {
           "Microsoft.EntityFrameworkCore.Abstractions": "8.0.8",
@@ -683,7 +683,7 @@
           "System.Buffers": "4.5.0"
         }
       },
-      "Microsoft.NET.ILLink.Tasks/8.0.8": {},
+      "Microsoft.NET.ILLink.Tasks/8.0.10": {},
       "Microsoft.OpenApi/1.6.14": {
         "runtime": {
           "lib/netstandard2.0/Microsoft.OpenApi.dll": {
@@ -1093,12 +1093,12 @@
       "path": "microsoft.data.sqlclient.sni.runtime/5.2.0",
       "hashPath": "microsoft.data.sqlclient.sni.runtime.5.2.0.nupkg.sha512"
     },
-    "Microsoft.DotNet.ILCompiler/8.0.8": {
+    "Microsoft.DotNet.ILCompiler/8.0.10": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-OWFDT/S4Zl5QVakCjVfRaZTLrmWDhA20ud/BKkru7vWnIrejMcUk4Xz2MwavgyzBypryoHYta787k4avhxsU9A==",
-      "path": "microsoft.dotnet.ilcompiler/8.0.8",
-      "hashPath": "microsoft.dotnet.ilcompiler.8.0.8.nupkg.sha512"
+      "sha512": "sha512-iThS5LNCcLlFkUlnxCJMgMSQ6s1BgbZo9ri11DDgNxDn8StwgFVUQJ8O5N/7S037jcS1md8tWp7Zu2YconIlag==",
+      "path": "microsoft.dotnet.ilcompiler/8.0.10",
+      "hashPath": "microsoft.dotnet.ilcompiler.8.0.10.nupkg.sha512"
     },
     "Microsoft.EntityFrameworkCore/8.0.8": {
       "type": "package",
@@ -1296,12 +1296,12 @@
       "path": "microsoft.net.http.headers/2.2.0",
       "hashPath": "microsoft.net.http.headers.2.2.0.nupkg.sha512"
     },
-    "Microsoft.NET.ILLink.Tasks/8.0.8": {
+    "Microsoft.NET.ILLink.Tasks/8.0.10": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-P8wR6MUWwYXIjPJuBaZgo5zlI/GWI6QEAo6NyVIbPefa9CCkohYu7dP2rD/mrqnjEqfRHyl+h9VZrDoGpELqYg==",
-      "path": "microsoft.net.illink.tasks/8.0.8",
-      "hashPath": "microsoft.net.illink.tasks.8.0.8.nupkg.sha512"
+      "sha512": "sha512-xT8jYjlroY7SLbGtoV9vUTVW/TPgodL4Egc31a444Xe0TMytLZ3UlKQ0kxMZsy/CrWsFB6wtKnSG1SsXcWreew==",
+      "path": "microsoft.net.illink.tasks/8.0.10",
+      "hashPath": "microsoft.net.illink.tasks.8.0.10.nupkg.sha512"
     },
     "Microsoft.OpenApi/1.6.14": {
       "type": "package",

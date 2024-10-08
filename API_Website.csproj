@@ -1,11 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <IsAotCompatible>true</IsAotCompatible>
+
+
+     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>false</InvariantGlobalization>
-    <PublishAot>true</PublishAot>
+    
+    <!-- Native AOT settings -->
+    <PublishAot>true</PublishAot> <!-- Habilitar Native AOT -->
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier> <!-- Ajusta este valor a tu plataforma -->
+    
+    <!-- Optional optimizations for AOT -->
+    <StripSymbols>true</StripSymbols> <!-- Eliminar símbolos de depuración para reducir el tamaño -->
+    <IlcGenerateCompleteTypeMetadata>true</IlcGenerateCompleteTypeMetadata> <!-- Requerido para reflection en Native AOT -->
+  
   </PropertyGroup>
 
   <ItemGroup>
