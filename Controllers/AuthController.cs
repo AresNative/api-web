@@ -35,7 +35,6 @@ namespace MyApiProject.Controllers
             }
         }
 
-        [Authorize]
         [HttpPost("logout")]
         public async Task<IActionResult> logOut(int id)
         {

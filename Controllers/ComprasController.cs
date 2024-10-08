@@ -11,13 +11,14 @@ namespace MyApiProject.Controllers
         [HttpGet("api/v1/reporteria/compras")]
         public async Task<IActionResult> ObtenerCompras() // Cambio de nombre para mayor claridad
         //!bds
-        //TC032841E - LOCAL_TC032391Ez
+        //TC032841E - LOCAL_TC032391E
         {
             // Ajustamos la consulta SQL para incluir el campo password
             string query = @"SELECT TOP(10)
                                 cb.Codigo, 
                                 cb.Cuenta, 
                                 cd.Unidad,
+                                U.Factor AS Equivalente, -- CAMPO NUEVO
                                 cd.ID AS CompraD_ID, 
                                 cd.CODIGO AS CompraD_Codigo, 
                                 cd.Articulo, 
@@ -27,19 +28,25 @@ namespace MyApiProject.Controllers
                                 c.MovID, 
                                 c.FechaEmision, 
                                 c.Proveedor,
-                                p.Nombre AS Proveedor_Nombre
-                             FROM 
-                                CB cb
-                             JOIN 
-                                CompraD cd ON cb.Cuenta = cd.Articulo 
-                             LEFT JOIN 
-                                Compra c ON cd.ID = c.ID
-                             LEFT JOIN 
-                                Prov p ON c.Proveedor = p.Proveedor
-                             WHERE 
-                                cb.Codigo = 'P006051' 
-                                AND cd.Unidad = cb.Unidad  
-                                AND c.Estatus = 'CONCLUIDO';";
+                                p.Nombre AS Proveedor_Nombre -- Asumiendo que 'Nombre' es un campo en la tabla 'Prov'
+                            FROM 
+                                [TC032841E].[dbo].[CB] cb
+                            JOIN 
+                                [TC032841E].[dbo].[CompraD] cd ON cb.Cuenta = cd.Articulo 
+                            LEFT JOIN 
+                                [TC032841E].[dbo].[Compra] c ON cd.ID = c.ID
+                            LEFT JOIN 
+                                [TC032841E].[dbo].[Prov] p ON c.Proveedor = p.Proveedor
+                            LEFT JOIN
+                                [TC032841E].[dbo].[ArtUnidad] U ON cb.Cuenta = U.Articulo -- JOIN NUEVO
+                            WHERE 
+                                cb.Codigo = 'P006051' --@CODIGO P006051 | 006023
+                            AND 
+                                CD.Unidad = CB.UNIDAD
+                            AND 
+                                U.Unidad = cb.UNIDAD -- CAMPO NUEVO
+                            AND  
+                                C.Estatus='CONCLUIDO'; --@ESTATUS";
 
             try
             {
